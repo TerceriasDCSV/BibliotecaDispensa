@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Doctor SV · Script de Llamada — Dispensa</title>
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" sizes="180x180" href="favicon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --teal-900:#0B3D3A;
+    --teal-700:#0F5C56;
+    --teal-500:#177A70;
+    --mint-50:#F2F7F5;
+    --card:#FFFFFF;
+    --ink:#152423;
+    --ink-soft:#516361;
+    --line:#DCE7E4;
+    --coral:#E4633B;
+    --coral-soft:#FCE7DF;
+    --amber:#C98A1B;
+    --amber-soft:#FBF0DA;
+    --violet:#6B4E9E;
+    --violet-soft:#EFE9F7;
+    --ok:#2E8B57;
+    --shadow: 0 1px 2px rgba(11,61,58,.06), 0 8px 24px rgba(11,61,58,.06);
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    font-family:'Inter',system-ui,sans-serif;
+    background:var(--mint-50);
+    color:var(--ink);
+    line-height:1.55;
+  }
+  h1,h2,h3,.brand{font-family:'Sora',system-ui,sans-serif;}
+  .var{
+    font-family:'IBM Plex Mono',monospace;
+    font-weight:600;
+    background:var(--coral-soft);
+    color:#9C3A1D;
+    border:1px solid #F1C2AC;
+    border-radius:5px;
+    padding:1px 7px;
+    font-size:.86em;
+    white-space:nowrap;
+  }
+  .tk{
+    font-family:'IBM Plex Mono',monospace;
+    font-weight:600;
+    background:var(--teal-900);
+    color:#fff;
+    border-radius:5px;
+    padding:1px 8px;
+    font-size:.82em;
+  }
+
+  /* ---------- Header ---------- */
+  header{
+    background:linear-gradient(135deg,var(--teal-900),var(--teal-700) 70%);
+    color:#fff;
+    padding:22px 28px 26px;
+    position:relative;
+    overflow:hidden;
+  }
+  header::after{
+    content:"";
+    position:absolute;
+    right:-60px; top:-60px;
+    width:260px;height:260px;
+    border-radius:50%;
+    background:radial-gradient(circle,rgba(255,255,255,.10),transparent 70%);
+  }
+  .brand-row{display:flex;align-items:center;gap:12px;position:relative;z-index:1;flex-wrap:wrap;}
+  .brand-mark{
+    width:38px;height:38px;border-radius:10px;
+    background:var(--coral);
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Sora';font-weight:800;font-size:16px;
+    flex-shrink:0;
+  }
+  .brand{font-size:1.15rem;font-weight:700;letter-spacing:.2px;}
+  .brand span{opacity:.75;font-weight:400;}
+  header h1{margin:14px 0 4px;font-size:1.55rem;font-weight:700;position:relative;z-index:1;}
+  header p.sub{margin:0;color:rgba(255,255,255,.78);font-size:.95rem;position:relative;z-index:1;}
+
+  /* ---------- Flash informativo ---------- */
+  #flash-wrap{
+    max-width:1180px;margin:-14px auto 0;padding:0 20px;position:relative;z-index:2;
+  }
+  .flash-card{
+    background:var(--card);
+    border-left:6px solid var(--amber);
+    border-radius:12px;
+    box-shadow:var(--shadow);
+    padding:14px 18px;
+    margin-bottom:10px;
+    display:flex;
+    gap:12px;
+    align-items:flex-start;
+    animation:slideIn .35s ease both;
+  }
+  .flash-card.level-urgente{border-left-color:var(--coral);}
+  .flash-card.level-actualizacion{border-left-color:var(--teal-500);}
+  .flash-card .icon{font-size:1.25rem;line-height:1;margin-top:1px;}
+  .flash-card .body{flex:1;min-width:0;}
+  .flash-card .title-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  .flash-card strong{font-family:'Sora';font-size:.98rem;}
+  .flash-tag{
+    font-size:.68rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;
+    padding:2px 8px;border-radius:20px;background:var(--amber-soft);color:var(--amber);
+  }
+  .flash-card.level-urgente .flash-tag{background:var(--coral-soft);color:var(--coral);}
+  .flash-card.level-actualizacion .flash-tag{background:#E4F1EF;color:var(--teal-500);}
+  .flash-card .msg{margin:4px 0 0;color:var(--ink-soft);font-size:.92rem;}
+  .flash-card .date{font-size:.75rem;color:#9AAAA7;margin-top:6px;}
+  .flash-close{
+    border:none;background:transparent;color:#B9C6C3;cursor:pointer;font-size:1.1rem;
+    padding:2px 4px;border-radius:6px;line-height:1;
+  }
+  .flash-close:hover{background:var(--mint-50);color:var(--ink-soft);}
+  .flash-empty{
+    text-align:center;color:#9AAAA7;font-size:.85rem;padding:10px 0 4px;
+  }
+  @keyframes slideIn{from{opacity:0;transform:translateY(-6px);}to{opacity:1;transform:translateY(0);}}
+
+  /* ---------- Layout ---------- */
+  .layout{
+    max-width:820px;margin:0 auto;padding:22px 20px 80px;
+  }
+
+  main{min-width:0;}
+  section.block{margin-bottom:34px;scroll-margin-top:16px;}
+  .block h2{
+    font-size:1.15rem;margin:0 0 4px;color:var(--teal-900);display:flex;align-items:center;gap:9px;
+  }
+  .block h2 .dot{width:9px;height:9px;border-radius:50%;background:var(--coral);flex-shrink:0;}
+  .block .desc{color:var(--ink-soft);font-size:.88rem;margin:0 0 14px;}
+
+  .card{
+    background:var(--card);border-radius:14px;box-shadow:var(--shadow);
+    padding:18px 20px;margin-bottom:14px;border:1px solid var(--line);
+  }
+  .card p{margin:0 0 10px;font-size:.95rem;}
+  .card p:last-child{margin-bottom:0;}
+  .callout{
+    background:var(--mint-50);border:1px dashed var(--line);border-radius:10px;
+    padding:10px 14px;font-size:.88rem;color:var(--teal-900);margin:10px 0;
+  }
+  .callout.internal{background:var(--violet-soft);border-color:#DACBEF;color:#4A3670;}
+  .label-inline{
+    font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;
+    color:#fff;background:var(--teal-500);padding:2px 9px;border-radius:20px;margin-right:8px;
+  }
+
+  /* tabs for the three call scripts */
+  .tabs{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;}
+  .tab-btn{
+    border:1px solid var(--line);background:#fff;color:var(--ink-soft);
+    padding:8px 14px;border-radius:9px;font-size:.85rem;font-weight:600;cursor:pointer;
+    font-family:'Inter';
+  }
+  .tab-btn.active{background:var(--teal-900);border-color:var(--teal-900);color:#fff;}
+  .tab-panel{display:none;}
+  .tab-panel.active{display:block;}
+
+  /* ---------- Informativo ---------- */
+  .info-card{border-left:6px solid var(--teal-500);}
+  .info-card.level-warning{border-left-color:var(--amber);}
+  .info-card.level-update{border-left-color:var(--violet);}
+  .info-card.level-link{border-left-color:var(--coral);}
+  .info-card.level-tools{border-left-color:var(--teal-700);}
+  .info-head{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+  .info-num{
+    flex-shrink:0;width:26px;height:26px;border-radius:50%;
+    background:var(--teal-900);color:#fff;font-family:'Sora';font-weight:700;font-size:.85rem;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .info-card.level-warning .info-num{background:var(--amber);}
+  .info-card.level-update .info-num{background:var(--violet);}
+  .info-card.level-link .info-num{background:var(--coral);}
+  .info-card.level-tools .info-num{background:var(--teal-700);}
+  .info-head h3{margin:0;font-size:1.02rem;color:var(--teal-900);}
+  .info-list{margin:8px 0 12px;padding-left:20px;font-size:.92rem;}
+  .info-list li{margin-bottom:4px;}
+  .info-alert{
+    display:flex;align-items:flex-start;gap:8px;margin-top:12px;
+    background:var(--amber-soft);border-radius:10px;padding:10px 14px;font-size:.9rem;color:#7A5410;
+  }
+  .info-card.level-update .info-alert{background:var(--violet-soft);color:#4A3670;}
+  .info-alert-icon{flex-shrink:0;}
+  .info-link{
+    display:inline-flex;align-items:center;gap:8px;font-weight:600;color:var(--coral);
+    text-decoration:none;font-size:.95rem;
+  }
+  .info-link:hover{text-decoration:underline;}
+  .info-subhead{
+    margin:16px 0 6px;font-size:.85rem;font-weight:700;text-transform:uppercase;
+    letter-spacing:.04em;color:var(--teal-700);
+  }
+  .info-card .info-subhead:first-of-type{margin-top:2px;}
+  .info-link.inline{font-size:.88rem;}
+  .info-tag{
+    display:inline-block;margin-left:6px;font-size:.68rem;font-weight:700;text-transform:uppercase;
+    letter-spacing:.03em;background:var(--coral-soft);color:var(--coral);padding:2px 8px;border-radius:20px;
+  }
+  .info-card.level-tools .info-list li{margin-bottom:14px;}
+  .info-card.level-tools .info-list{padding-left:18px;}
+
+  /* ---------- Flujograma ---------- */
+  .flow-link-wrap{display:flex;justify-content:center;padding:28px 12px;}
+  .flow-link{display:inline-flex;align-items:center;gap:10px;padding:14px 22px;border-radius:10px;
+    background:var(--brand,#c25a1f);color:#fff;text-decoration:none;font-weight:600;font-size:1rem;
+    box-shadow:0 2px 8px rgba(0,0,0,.15);transition:filter .15s ease;}
+  .flow-link:hover{filter:brightness(1.08);}
+  .flow-link::before{content:"📄";}
+  .flow-card{border-left:6px solid var(--teal-900);}
+  .flow-img-wrap{
+    overflow:auto;border:1px solid var(--line);border-radius:10px;background:#fff;
+    max-height:78vh;
+  }
+  .flow-img{display:block;width:100%;height:auto;}
+
+  .steps{counter-reset:step;list-style:none;padding:0;margin:0;}
+  .steps>li{
+    counter-increment:step;position:relative;padding:2px 0 14px 30px;border-left:2px solid var(--line);margin-left:9px;
+  }
+  .steps>li:last-child{border-left-color:transparent;padding-bottom:0;}
+  .steps>li::before{
+    content:counter(step);position:absolute;left:-11px;top:0;width:20px;height:20px;border-radius:50%;
+    background:var(--teal-700);color:#fff;font-size:.72rem;font-weight:700;display:flex;align-items:center;justify-content:center;
+    font-family:'Sora';
+  }
+  .steps h4{margin:0 0 4px;font-size:.95rem;color:var(--teal-900);}
+
+  .obj-item{border:1px solid var(--line);border-radius:12px;margin-bottom:10px;overflow:hidden;background:#fff;}
+  .obj-q{
+    padding:13px 16px;font-weight:600;font-size:.92rem;cursor:pointer;display:flex;justify-content:space-between;
+    align-items:center;color:var(--teal-900);
+  }
+  .obj-q:hover{background:var(--mint-50);}
+  .obj-a{max-height:0;overflow:hidden;transition:max-height .25s ease;background:var(--mint-50);}
+  .obj-a-inner{padding:2px 16px 15px;font-size:.9rem;color:var(--ink-soft);}
+  .obj-item.open .obj-a{max-height:400px;}
+  .obj-item.open .chev{transform:rotate(180deg);}
+  .chev{transition:transform .2s;font-size:.8rem;color:#9AAAA7;}
+
+  .img-card{text-align:center;}
+  .img-card img{max-width:100%;border-radius:8px;border:1px solid var(--line);}
+  .img-card figcaption{font-size:.8rem;color:var(--ink-soft);margin-top:8px;}
+
+  .closing{
+    background:var(--teal-900);color:#fff;border-radius:12px;padding:16px 18px;font-size:.92rem;
+  }
+  .closing .var{background:rgba(255,255,255,.15);color:#fff;border-color:rgba(255,255,255,.3);}
+  .closing .tk{background:var(--coral);}
+
+  footer{text-align:center;color:#9AAAA7;font-size:.78rem;padding:0 20px 40px;}
+
+  @media (max-width:840px){
+    .layout{padding:18px 16px 60px;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand-row">
+    <div class="brand-mark">Rx</div>
+    <div class="brand">Doctor SV <span>· Contact Center</span></div>
+  </div>
+  <h1>Script de Llamada — Seguimiento de Dispensa</h1>
+  <p class="sub">Guía de referencia para agentes: llamadas de seguimiento, manejo de objeciones y tipificación de tickets.</p>
+</header>
+
+<div id="flash-wrap">
+  <div id="flash-container"></div>
+</div>
+
+<div class="layout">
+
+  <main>
+
+    <!-- ============ SCRIPTS DE LLAMADA (tabs) ============ -->
+    <section class="block" id="scripts">
+      <h2><span class="dot"></span>Scripts de llamada</h2>
+      <p class="desc">Selecciona el escenario según el caso del paciente.</p>
+
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="dispensa">Llamada Dispensa</button>
+        <button class="tab-btn" data-tab="privado">Medicamento privado</button>
+        <button class="tab-btn" data-tab="error">Error en receta</button>
+        <button class="tab-btn" data-tab="informativo">Informativo</button>
+        <button class="tab-btn" data-tab="herramientas">Herramientas</button>
+        <button class="tab-btn" data-tab="flujograma">Flujograma</button>
+      </div>
+
+      <!-- TAB 1: DISPENSA -->
+      <div class="tab-panel active" id="tab-dispensa">
+        <div class="card">
+          <ol class="steps">
+            <li>
+              <h4>Saludo y validación de identidad</h4>
+              <p>Buenos días/tardes. Tengo el gusto con: <span class="var">nombre del paciente</span>. Le saluda <span class="var">Primer Nombre y Primer Apellido</span> de Doctor SV. Le comento que, por motivos de control de calidad, esta llamada está siendo grabada.</p>
+            </li>
+            <li>
+              <h4>Motivo de la llamada</h4>
+              <p>El motivo de mi llamada es ayudarle con el seguimiento a la receta con ID <span class="var">número de receta</span>. Verificamos en sistema que el medicamento <span class="var">nombre del medicamento</span> quedó pendiente de dispensa (entrega). Por ello deseo apoyarlo para completar el retiro de su/sus medicamento/s. Para ello, quiero indicarle la sucursal más cercana al lugar donde usted se presentó. ¿Le parece bien?</p>
+              <p><strong>De acuerdo:</strong></p>
+            </li>
+            <li>
+              <h4>Opción 1 — Está cerca del punto de retiro original</h4>
+              <p>Puede acudir a la sucursal <span class="var">Nombre de la Sucursal</span> o a la sucursal <span class="var">Nombre de la Sucursal</span>. (Brindar dirección exacta de la sucursal elegida y horarios de atención.)</p>
+            </li>
+            <li>
+              <h4>Opción 2 — No está cerca del punto de retiro original</h4>
+              <p>¿Me podría indicar la zona en la que se encuentra para ofrecerle la opción más conveniente?</p>
+              <div class="callout internal"><span class="label-inline">Nota interna</span>Solicitar tiempo de espera para validar la ubicación y sucursales.</div>
+              <p>Gracias por el tiempo de espera en línea. De acuerdo con su ubicación actual, la sucursal más accesible para completar el retiro de medicamentos es <span class="var">nombre de la sucursal</span>, la cual se encuentra en <span class="var">dirección exacta</span>.</p>
+            </li>
+            <li>
+              <h4>Documentos requeridos</h4>
+              <p>Recuerde que al momento de presentarse a la farmacia debe presentar el número de su receta (QR dependiendo la sucursal) y su documento de identidad con el que se registró en la aplicación (DUI, carnet de residente, pasaporte o licencia de conducir). En formato físico, digital, original o copia.</p>
+            </li>
+            <li>
+              <h4>Vigencia de la receta y soporte</h4>
+              <p>Asimismo, es importante recordarle que su receta cuenta con una vigencia de 5 días a partir de la fecha de emisión. Si presenta algún inconveniente con su medicamento o receta, puede comunicarse al número de atención para pacientes de Doctor SV <span class="tk">136</span> y se le brindará asistencia.</p>
+            </li>
+            <li>
+              <h4>Cierre</h4>
+              <div class="closing">
+                Agradezco su tiempo y, por haber tomado mi llamada, esta gestión queda registrada bajo el número <span class="var">número de gestión</span>. Le saludo <span class="var">Primer Nombre y Primer Apellido</span> de Doctor SV. Le deseo un excelente día/tarde.
+              </div>
+            </li>
+          </ol>
+        </div>
+      </div>
+
+      <!-- TAB 2: PRIVADO -->
+      <div class="tab-panel" id="tab-privado">
+        <div class="card">
+          <ol class="steps">
+            <li>
+              <h4>Saludo y validación de identidad</h4>
+              <p>Buenos días/tardes. Tengo el gusto con: <span class="var">nombre del paciente</span>. Le saluda <span class="var">Primer Nombre y Primer Apellido</span> de Doctor SV. Le comento que, por motivos de control de calidad, esta llamada está siendo grabada.</p>
+            </li>
+            <li>
+              <h4>Motivo de la llamada</h4>
+              <p>El motivo de mi llamada es ayudarle con el seguimiento a la receta con ID <span class="var">número de receta</span>. Verificamos en el sistema que el medicamento <span class="var">nombre del medicamento</span> quedó pendiente de dispensa (entrega). Por ello deseo apoyarlo para completar el retiro de su/sus medicamento/s. Para ello, quiero sugerirle la/s cadena/s donde puede acudir a retirar su medicamento/s. ¿Le parece bien?</p>
+            </li>
+            <li>
+              <h4>Opción 1 — Cadena sugerida</h4>
+              <p>Le recomendamos acudir a la/s Farmacia/s <span class="var">nombre de la/s cadena/s farmacéutica/s</span>, donde pueden entregarle el medicamento pendiente.</p>
+            </li>
+            <li>
+              <h4>Documentos requeridos</h4>
+              <p>Recuerde que al momento de presentarse a la farmacia debe presentar el número de su receta (QR dependiendo la sucursal) y su documento de identidad (DUI, carnet de residente, pasaporte o licencia de conducir — formato físico o digital, original o copia).</p>
+            </li>
+            <li>
+              <h4>Cierre</h4>
+              <div class="closing">
+                Asimismo, es importante recordar que su receta cuenta con una vigencia de 5 días a partir de la fecha de emisión. Agradezco su tiempo y, por haber tomado mi llamada, esta gestión queda registrada bajo el número <span class="var">número de gestión</span>. Le saludo <span class="var">Primer Nombre y Primer Apellido</span> de Doctor SV. Le deseo un excelente día/tarde, cualquier duda o consulta adicional puede comunicarse al número de atención de pacientes de Doctor SV <span class="tk">136</span>.
+              </div>
+            </li>
+          </ol>
+        </div>
+      </div>
+
+      <!-- TAB 3: ERROR EN RECETA -->
+      <div class="tab-panel" id="tab-error">
+        <div class="card">
+          <ol class="steps">
+            <li>
+              <h4>Saludo y validación de identidad</h4>
+              <p>Buenas tardes/días/noches, tengo el gusto con <span class="var">nombre del paciente</span>. Le saluda <span class="var">Primer Nombre y Primer Apellido</span> de Doctor SV. Esta llamada está siendo grabada por control de calidad.</p>
+            </li>
+            <li>
+              <h4>Motivo de la llamada</h4>
+              <p>El motivo de mi llamada es en relación a la receta con número <span class="var">número de receta</span>, notificarle que dicha receta está siendo verificada. Por favor, manténgase a la espera de nuestra llamada antes de intentar adquirir el medicamento, para indicarle el momento en el que puede completar la dispensa del medicamento.</p>
+            </li>
+            <li>
+              <h4>Cierre</h4>
+              <div class="closing">
+                Agradezco su tiempo y, por haber tomado mi llamada, esta gestión queda registrada bajo el número <span class="var">número de gestión</span>. Le saludo <span class="var">Primer Nombre y Primer Apellido</span> de Doctor SV. Le deseo un excelente día/tarde; cualquier duda o consulta adicional, puede comunicarse al número de atención de pacientes de Doctor SV <span class="tk">136</span>.
+              </div>
+            </li>
+          </ol>
+        </div>
+      </div>
+
+      <div class="tab-panel" id="tab-informativo">
+
+        <div class="card info-card level-warning">
+          <div class="info-head">
+            <span class="info-num">1</span>
+            <h3>Aviso importante de abastecimiento</h3>
+          </div>
+          <p>Es posible que en algunas zonas no haya disponibilidad de los siguientes medicamentos:</p>
+          <ul class="info-list">
+            <li>Metformina</li>
+            <li>Ezetimiba</li>
+            <li>Empagliflozina</li>
+            <li>Progesterona micronizada</li>
+            <li>Etinilestradiol + Levonorgestrel</li>
+            <li>Levotiroxina</li>
+            <li>Insulina Glargina</li>
+            <li>Bisoprolol</li>
+          </ul>
+          <div class="info-alert">
+            <span class="info-alert-icon">⚠️</span>
+            <span><strong>Indicación:</strong> Si no cuentan con stock de alguno de ellos, <strong>NO contactar al paciente.</strong></span>
+          </div>
+        </div>
+
+        <div class="card info-card level-update">
+          <div class="info-head">
+            <span class="info-num">2</span>
+            <h3>Parametrización de anticonceptivos</h3>
+          </div>
+          <p>Les informo que la entrega de medicamentos anticonceptivos se estará parametrizando a <strong>1 caja</strong> según su presentación.</p>
+          <p>Es decir que las recetas por el medicamento <span class="var">ETINILESTRADIOL/LEVONORGESTREL 0,03 MG/0,15 MG/ TABLETA</span> vendrán prescritas por la cantidad de <strong>1</strong>.</p>
+          <p>Por lo que las farmacias para esta receta podrán entregar de la siguiente manera:</p>
+          <ul class="info-list">
+            <li>DoctorSV: <strong>21 unidades</strong></li>
+            <li>Anaquel de la Farmacia: <strong>28 unidades</strong></li>
+          </ul>
+          <p>Ya que la receta ahora indicará el tratamiento en su totalidad y no la cantidad de cápsulas o pastillas, como se hacía antes.</p>
+          <p>Por favor, tengan en cuenta esta indicación para evitar problemas o crear gestiones de error en receta si no aplican.</p>
+          <div class="info-alert">
+            <span class="info-alert-icon">🚨</span>
+            <span><strong>Alerta:</strong> Este medicamento se comenzará a prescribir así a partir del <strong>27 de este mes</strong>.</span>
+          </div>
+        </div>
+
+        <div class="card info-card level-link">
+          <div class="info-head">
+            <span class="info-num">3</span>
+            <h3>Ubicación de farmacias</h3>
+          </div>
+          <a class="info-link" href="https://terceriasdcsv.github.io/Farmacias/" target="_blank" rel="noopener">
+            👉 Nuevo enlace de ubicación de farmacias
+          </a>
+        </div>
+
+      </div>
+
+      <div class="tab-panel" id="tab-herramientas">
+
+        <div class="card info-card level-tools">
+          <div class="info-head">
+            <span class="info-num">4</span>
+            <h3>Herramientas y canales oficiales de gestión</h3>
+          </div>
+
+          <h4 class="info-subhead">1. Validación de medicamentos</h4>
+          <ul class="info-list">
+            <li>
+              <strong>Archivo Excel (Medicamento ofertado 2ᵈᵃ etapa):</strong> documento base para la gestión y control específico de esta línea de medicamentos. Es de uso obligatorio para la validación de casos.
+              <br>
+              <a class="info-link inline" href="https://docs.google.com/spreadsheets/d/1vrRSLUSUuZeP2NBvaZKpzSHewF-qAj7D/edit?gid=521021872#gid=521021872" target="_blank" rel="noopener">📄 MEDICAMENTOS OFERTADOS 2DA ETAPA.xlsx</a>
+              <span class="info-tag">Usar cuadro TER Dispensa</span>
+            </li>
+            <li>
+              <strong>Tarifas de medicamentos (2 archivos):</strong> herramienta principal para verificar la disponibilidad de productos. Aquí deberán validar si un medicamento se encuentra <strong>ACTIVO</strong> o <strong>INACTIVO</strong> antes de proceder.
+              <br>
+              <a class="info-link inline" href="https://docs.google.com/spreadsheets/d/1GEHZB4FjPyt4lmneUyrbJ9RuHJRrSqc7/edit?gid=1619455290#gid=1619455290" target="_blank" rel="noopener">📄 TARIFAS MEDICAMENTOS-IMAGENES-LABORATORIOS ROLL OUT 12112025 v2.xlsx</a>
+            </li>
+          </ul>
+
+          <h4 class="info-subhead">2. Soporte y logística de farmacias</h4>
+          <ul class="info-list">
+            <li>
+              <strong>Mapa y ubicación de farmacias:</strong> recurso visual para localizar puntos de entrega. Al igual que con los medicamentos, es vital revisar en la leyenda si la farmacia está <strong>ACTIVA</strong>, <strong>PENDIENTE</strong> o <strong>INACTIVA</strong>.
+              <br>
+              <a class="info-link inline" href="https://terceriasdcsv.github.io/Farmacias/" target="_blank" rel="noopener">🗺️ Mapa de farmacias</a>
+              &nbsp;·&nbsp;
+              <a class="info-link inline" href="https://docs.google.com/spreadsheets/d/10Ko3nX_pYL2DHlkLcBniA7ugsgY9HCOv/edit?gid=1558926714#gid=1558926714" target="_blank" rel="noopener">📄 Sucursales para Roll Out con horarios v2.xlsx</a>
+            </li>
+            <li>
+              <strong>P2H:</strong> plataforma para el seguimiento de recetas y procesos logísticos integrados.
+              <br>
+              <a class="info-link inline" href="https://tercemed.com/?#/login" target="_blank" rel="noopener">🔗 tercemed.com/login</a>
+            </li>
+          </ul>
+
+          <h4 class="info-subhead">3. Procesos administrativos y gestión de casos</h4>
+          <ul class="info-list">
+            <li>
+              <strong>TCA:</strong> utilizar esta vía únicamente en los casos que sea estrictamente necesario.
+              <br>
+              <a class="info-link inline" href="https://mp.telesalud.gob.sv/(S(uxpifrlklkrrb2vqn4c1cadv))/Default#t2" target="_blank" rel="noopener">🔗 Acceder a TCA</a>
+            </li>
+            <li>
+              <strong>ERP:</strong> validar medicamento disponible en la farmacia.
+              <br>
+              <a class="info-link inline" href="https://merksyst.telesalud.gob.sv/(S(rx5wnzuqe303brok1nlwtkhn))/Default#t2" target="_blank" rel="noopener">🔗 Acceder a ERP</a>
+            </li>
+            <li>
+              <strong>SDP:</strong> canal oficial y único para la recepción y registro de todas las gestiones. Ninguna gestión será procesada si no ingresa a través de esta plataforma.
+              <br>
+              <a class="info-link inline" href="https://atencion.telesalud.gob.sv/WOListView.do" target="_blank" rel="noopener">🔗 Acceder a SDP</a>
+            </li>
+          </ul>
+
+          <div class="info-alert">
+            <span class="info-alert-icon">📌</span>
+            <span><strong>Nota importante:</strong> el cumplimiento de estos procesos es fundamental para evitar reprocesos y asegurar que los pacientes reciban su medicamento en tiempo y forma.</span>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="tab-panel" id="tab-flujograma">
+        <div class="card flow-card">
+          <div class="flow-link-wrap">
+            <a class="flow-link" href="file:///C:/Users/Usuario/Downloads/Flujo%20de%20dispensa%20parcial%20o%20Consulta%20sin%20dispensa.drawio%20V%20final.pdf" target="_blank" rel="noopener">Abrir flujograma (PDF)</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<footer>Doctor SV · Documento interno de referencia para Contact Center. Actualiza el bloque de Flash Informativo editando el arreglo <code>flashes</code> en el script.</footer>
+
+<script>
+/* =========================================================================
+   FLASH INFORMATIVO
+   -------------------------------------------------------------------------
+   Agrega, edita o elimina avisos aquí. Cada aviso es un objeto con:
+     id      -> identificador único (string)
+     level   -> "info" | "actualizacion" | "urgente"  (define color/ícono)
+     title   -> título corto del aviso
+     message -> texto del aviso
+     date    -> fecha a mostrar (texto libre, ej. "22 jul 2026")
+     active  -> true/false (ponlo en false para ocultarlo sin borrarlo)
+
+   Ejemplo para agregar uno nuevo:
+     { id:"flash-004", level:"urgente", title:"Cambio de horario",
+       title... etc. }
+   ========================================================================= */
+const flashes = [
+  // Ejemplo (déjalo en active:false o bórralo cuando cargues avisos reales):
+  // { id:"flash-001", level:"actualizacion", title:"Nueva sucursal habilitada",
+  //   message:"Farmacia San Miguel Centro ya cuenta con inventario completo para dispensa.",
+  //   date:"22 jul 2026", active:true },
+];
+
+const ICONS = { info:"🛈", actualizacion:"📣", urgente:"⚠️" };
+const LABELS = { info:"Informativo", actualizacion:"Actualización", urgente:"Urgente" };
+
+function renderFlashes(){
+  const container = document.getElementById('flash-container');
+  container.innerHTML = "";
+  const visible = flashes.filter(f => f.active !== false);
+
+  if(visible.length === 0){
+    container.innerHTML = '<div class="flash-empty">No hay avisos informativos en este momento.</div>';
+    return;
+  }
+
+  visible.forEach(f => {
+    const el = document.createElement('div');
+    el.className = `flash-card level-${f.level || 'info'}`;
+    el.innerHTML = `
+      <div class="icon">${ICONS[f.level] || ICONS.info}</div>
+      <div class="body">
+        <div class="title-row">
+          <strong>${f.title || ''}</strong>
+          <span class="flash-tag">${LABELS[f.level] || LABELS.info}</span>
+        </div>
+        <p class="msg">${f.message || ''}</p>
+        ${f.date ? `<div class="date">${f.date}</div>` : ''}
+      </div>
+      <button class="flash-close" title="Cerrar" data-id="${f.id}">✕</button>
+    `;
+    container.appendChild(el);
+  });
+
+  container.querySelectorAll('.flash-close').forEach(btn=>{
+    btn.addEventListener('click', () => {
+      btn.closest('.flash-card').remove();
+      if(!container.querySelector('.flash-card')){
+        container.innerHTML = '<div class="flash-empty">No hay avisos informativos en este momento.</div>';
+      }
+    });
+  });
+}
+renderFlashes();
+
+/* ---------- Tabs ---------- */
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-'+btn.dataset.tab).classList.add('active');
+  });
+});
+
+/* ---------- Sidenav active state on scroll (kept for future sections) ---------- */
+const sections = document.querySelectorAll('section.block');
+const navLinks = document.querySelectorAll('nav.side a');
+const setActive = () => {
+  if(!sections.length) return;
+  let current = sections[0].id;
+  sections.forEach(s=>{
+    if (window.scrollY >= s.offsetTop - 90) current = s.id;
+  });
+  navLinks.forEach(a=>{
+    a.classList.toggle('active', a.getAttribute('href') === '#'+current);
+  });
+};
+window.addEventListener('scroll', setActive);
+setActive();
+</script>
+
+</body>
+</html>
