@@ -208,6 +208,26 @@
   .info-card.level-tools .info-list li{margin-bottom:14px;}
   .info-card.level-tools .info-list{padding-left:18px;}
 
+  /* ---------- Matriz unificada de registro ---------- */
+  .info-table-wrap{overflow-x:auto;margin-top:10px;border:1px solid var(--line);border-radius:10px;}
+  table.info-table{width:100%;border-collapse:collapse;font-size:.82rem;min-width:760px;}
+  table.info-table thead th{
+    background:var(--mint-50);color:var(--teal-900);text-align:left;font-size:.72rem;
+    text-transform:uppercase;letter-spacing:.03em;padding:10px 12px;border-bottom:1px solid var(--line);
+  }
+  table.info-table td{padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top;}
+  table.info-table tbody tr:last-child td{border-bottom:none;}
+  table.info-table tbody tr:hover{background:var(--mint-50);}
+  table.info-table td strong{color:var(--ink);}
+  .pill{display:inline-block;padding:3px 10px;border-radius:20px;font-size:.72rem;font-weight:700;}
+  .pill-resolucion{background:var(--mint-50);color:var(--teal-700);border:1px solid var(--teal-500);}
+  .pill-gestion{background:var(--violet-soft);color:var(--violet);}
+  .pill-cierre{background:#EEF1F0;color:var(--ink-soft);}
+  .pill-cerrado{background:var(--mint-50);color:var(--teal-900);border:1px solid var(--line);font-weight:700;}
+  .pill-cerrado-nc{background:var(--amber-soft);color:var(--amber);font-weight:700;}
+  .pill-si{background:#E1F3E7;color:var(--ok);font-weight:700;border-radius:999px;padding:2px 10px;}
+  .pill-no{background:var(--coral-soft);color:var(--coral);font-weight:700;border-radius:999px;padding:2px 10px;}
+
   /* ---------- Flujograma ---------- */
   .flow-card{border-left:6px solid var(--teal-900);}
   .fc-image-wrap{display:flex;flex-direction:column;align-items:center;padding:20px;overflow-x:auto;}
@@ -509,6 +529,109 @@
           <div class="info-alert" style="margin-top:14px;">
             <span class="info-alert-icon">📌</span>
             <span><strong>Nota:</strong> les pedimos mantenerse dentro del parámetro evaluado. El apego al script en este punto será monitoreado activamente en las auditorías de calidad.</span>
+          </div>
+        </div>
+
+        <div class="card info-card level-link">
+          <div class="info-head">
+            <span class="info-num">5</span>
+            <h3>Matriz unificada de registro</h3>
+          </div>
+          <div class="info-table-wrap">
+            <table class="info-table">
+              <thead>
+                <tr>
+                  <th>Resultado llamada</th>
+                  <th>Tipo gestión (FCR)</th>
+                  <th>Estado final</th>
+                  <th>¿Solventó?</th>
+                  <th>Situación en la llamada</th>
+                  <th>Métrica que generas</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Contestó paciente</strong></td>
+                  <td><span class="pill pill-resolucion">Resolución</span></td>
+                  <td><span class="pill pill-cerrado">CERRADO</span></td>
+                  <td><span class="pill-si">Sí</span></td>
+                  <td>Le das información y confirma que Sí asistirá.</td>
+                  <td><strong>Pacientes que Sí asistirán</strong></td>
+                </tr>
+                <tr>
+                  <td><strong>Contestó paciente</strong></td>
+                  <td><span class="pill pill-resolucion">Resolución</span></td>
+                  <td><span class="pill pill-cerrado">CERRADO</span></td>
+                  <td><span class="pill-si">Sí</span></td>
+                  <td>Le das información, pero no sabe cuándo irá / indeciso.</td>
+                  <td><strong>Pacientes informados (Indecisos)</strong></td>
+                </tr>
+                <tr>
+                  <td><strong>Contestó paciente</strong></td>
+                  <td><span class="pill pill-resolucion">Resolución</span></td>
+                  <td><span class="pill pill-cerrado">CERRADO</span></td>
+                  <td><span class="pill-si">Sí</span></td>
+                  <td>Le das información, pero indica que NO asistirá.</td>
+                  <td><strong>Pacientes que NO asistirán</strong></td>
+                </tr>
+                <tr>
+                  <td><strong>Contestó tercero</strong></td>
+                  <td><span class="pill pill-resolucion">Resolución</span></td>
+                  <td><span class="pill pill-cerrado">CERRADO</span></td>
+                  <td><span class="pill-si">Sí</span></td>
+                  <td>Tercero autorizado recibe la información completa.</td>
+                  <td><strong>Tercero con contacto efectivo</strong></td>
+                </tr>
+                <tr>
+                  <td><strong>Contestó paciente</strong></td>
+                  <td><span class="pill pill-gestion">Gestión</span></td>
+                  <td><span class="pill pill-cerrado">CERRADO</span></td>
+                  <td><span class="pill-si">Sí</span></td>
+                  <td>Agente identifica dispensación previa / Paciente ya acudió.</td>
+                  <td><strong>Ya dispensadas</strong></td>
+                </tr>
+                <tr>
+                  <td><strong>Contestó tercero</strong></td>
+                  <td><span class="pill pill-cierre">Cierre ticket</span></td>
+                  <td><span class="pill pill-cerrado">CERRADO</span></td>
+                  <td><span class="pill-no">No</span></td>
+                  <td>Atiende tercero, pero no sabe datos o no recibe info.</td>
+                  <td><strong>Tercero SIN info / No efectivo</strong></td>
+                </tr>
+                <tr>
+                  <td><strong>No contesta</strong></td>
+                  <td><span class="pill pill-cierre">Cierre ticket</span></td>
+                  <td><span class="pill pill-cerrado-nc">CERRADO NO CONTACTO</span></td>
+                  <td><span class="pill-no">No</span></td>
+                  <td>Se realiza el marcado y no responden al timbrado.</td>
+                  <td><strong>Llamadas no contestadas</strong></td>
+                </tr>
+                <tr>
+                  <td><strong>Cuelga llamada</strong></td>
+                  <td><span class="pill pill-cierre">Cierre ticket</span></td>
+                  <td><span class="pill pill-cerrado-nc">CERRADO NO CONTACTO</span></td>
+                  <td><span class="pill-no">No</span></td>
+                  <td>Cortan la llamada antes de poder dar la información.</td>
+                  <td><strong>Llamada interrumpida</strong></td>
+                </tr>
+                <tr>
+                  <td><strong>Número equivocado</strong></td>
+                  <td><span class="pill pill-cierre">Cierre ticket</span></td>
+                  <td><span class="pill pill-cerrado-nc">CERRADO NO CONTACTO</span></td>
+                  <td><span class="pill-no">No</span></td>
+                  <td>El número registrado no pertenece al paciente.</td>
+                  <td><strong>Base de datos – Nº equivocado</strong></td>
+                </tr>
+                <tr>
+                  <td><strong>Número inválido</strong></td>
+                  <td><span class="pill pill-cierre">Cierre ticket</span></td>
+                  <td><span class="pill pill-cerrado-nc">CERRADO NO CONTACTO</span></td>
+                  <td><span class="pill-no">No</span></td>
+                  <td>El número registrado es inválido.</td>
+                  <td><strong>Base de datos – Número inválido</strong></td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
 
